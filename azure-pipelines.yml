@@ -32,3 +32,22 @@ stages:
     - script: echo Hello, world!
       displayName: 'Run a one-line script'
 
+- stage: BuildAndDeploy
+  jobs:
+  - job: BuildDjangoApp
+    steps:
+    - script: |
+        echo "Building Django application..."
+        docker build -t $(DOCKER_IMAGE) .
+      displayName: 'Build Docker Image'
+    - script: |
+        echo "Pushing Docker image to registry..."
+        echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_CREDENTIALS_ID) --password-stdin
+        docker push $(DOCKER_IMAGE)
+      displayName: 'Push Docker Image to Registry'
+    - script: |
+        echo "Deploying to AKS..."
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+      displayName: 'Deploy to AKS'
+
