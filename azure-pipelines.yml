@@ -18,9 +18,6 @@ stages:
     steps:
     - checkout: self
       displayName: 'Clone Repository'
-      inputs:
-        repository: 'https://github.com/SharmilaBalanand/myproject'
-        endpoint: 'github-id'
     - script: echo "Repository cloned successfully!"
       displayName: 'Confirm Repository Clone'
 
