@@ -1,3 +1,14 @@
+# trigger:
+# - main
+
+# variables:
+#   DOCKER_IMAGE: "sharmila79/dummy-maven-project"
+#   DOCKER_CREDENTIALS_ID: "docker-id"
+#   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
+
+# pool:
+#   name: Default
+#   demands:
 trigger:
 - main
 
@@ -21,6 +32,7 @@ stages:
       persistCredentials: true
       clean: true
       fetchDepth: 0
+      ref: refs/heads/master
     - script: echo "Repository cloned successfully!"
       displayName: 'Confirm Repository Clone'
 
@@ -30,4 +42,33 @@ stages:
     steps:
     - script: echo Hello, world!
       displayName: 'Run a one-line script'
+
+
+
+
+
+
+
+
+#   - agent.name -equals sqtask
+
+# stages:
+# - stage: CloneCode
+#   jobs:
+#   - job: CheckoutRepo
+#     steps:
+#     - checkout: self
+#       displayName: 'Clone Repository'
+#       persistCredentials: true
+#       clean: true
+#       fetchDepth: 0
+#     - script: echo "Repository cloned successfully!"
+#       displayName: 'Confirm Repository Clone'
+
+# - stage: RunScript
+#   jobs:
+#   - job: RunOneLineScript
+#     steps:
+#     - script: echo Hello, world!
+#       displayName: 'Run a one-line script'
 
