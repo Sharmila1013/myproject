@@ -2,7 +2,7 @@ trigger:
 - main
 
 variables:
-  DOCKER_IMAGE: "sharmila79/django-project"
+  DOCKER_IMAGE: "sharmila79/django-app"
   DOCKER_CREDENTIALS_ID: "docker-id"
   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
 
