@@ -50,15 +50,13 @@ stages:
         echo "Installing SonarQube scanner..."
         wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip | bsdtar -xvf- -C /opt
         export PATH=$PATH:/opt/sonar-scanner-4.6.2.2472-linux/bin
-      displayName: 'Install SonarQube Scanner'
-    - script: |
         echo "Running SonarQube analysis..."
-        sonar-scanner \
+        /opt/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
           -Dsonar.projectKey=myproject \
           -Dsonar.sources=. \
           -Dsonar.host.url=http://4.224.92.97 \
           -Dsonar.login=$(SONARQUBE_TOKEN)
-      displayName: 'Run SonarQube Scanner'
+      displayName: 'Install and Run SonarQube Scanner'
     - task: SonarQubePublish@5
       inputs:
         pollingTimeoutSec: '300'
