@@ -69,7 +69,7 @@ stages:
         scannerMode: 'CLI'
         configMode: 'manual'
         cliProjectKey: 'myproject'
-        cliProjectName: 'My Project'
+        cliProjectName: 'myroject'
         cliSources: '.'
       displayName: 'Prepare SonarQube Analysis'
     - script: |
