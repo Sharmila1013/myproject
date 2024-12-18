@@ -17,8 +17,12 @@ stages:
   - job: CheckoutRepo
     steps:
     - checkout: self
-    - script: echo "Repository cloned successfully!"
       displayName: 'Clone Repository'
+      inputs:
+        repository: 'https://github.com/SharmilaBalanand/myproject'
+        endpoint: 'github-id'
+    - script: echo "Repository cloned successfully!"
+      displayName: 'Confirm Repository Clone'
 
 - stage: RunScript
   jobs:
