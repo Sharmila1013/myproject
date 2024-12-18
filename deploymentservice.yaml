@@ -32,7 +32,7 @@ metadata:
   name: django-service
 spec:
   type: LoadBalancer
-  loadBalancerIP: 4.224.167.219
+  loadBalancerIP: 4.213.136.108
   ports:
   - port: 80
     targetPort: 8000
