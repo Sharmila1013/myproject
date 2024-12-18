@@ -11,9 +11,18 @@ pool:
   demands:
   - agent.name -equals sqtask
 
+stages:
+- stage: CloneCode
+  jobs:
+  - job: CheckoutRepo
+    steps:
+    - checkout: self
+    - script: echo "Repository cloned successfully!"
+      displayName: 'Clone Repository'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-
+- stage: RunScript
+  jobs:
+  - job: RunOneLineScript
+    steps:
+    - script: echo Hello, world!
+      displayName: 'Run a one-line script'
