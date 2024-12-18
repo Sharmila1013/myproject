@@ -1,93 +1,80 @@
 trigger:
 - main
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 variables:
-  dockerRegistryServiceConnection: '<your-dockerhub-service-connection>'
-  imageRepository: '<your-dockerhub-username>/<your-repo>'
-  containerRegistry: 'docker.io'
-  kubernetesServiceConnection: '<your-aks-service-connection>'
-  aksCluster: '<your-aks-cluster-name>'
-  aksNamespace: 'default'
+  DOCKER_IMAGE: "sharmila79/Django-project"
+  DOCKER_CREDENTIALS_ID: "docker-id"
+  KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
+
+pool:
+  name: Default
+  demands:
+  - agent.name -equals sqtaskagentpool
 
 stages:
-- stage: Build
+- stage: CloneCode
   jobs:
-  - job: Build
+  - job: CloneCode
     steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.x'
-        addToPath: true
+    - checkout: self
+      clean: true
 
-    - script: |
-        python -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-      displayName: 'Install dependencies'
+# - stage: BuildProject
+#   jobs:
+#   - job: BuildProject
+#     steps:
+#     - task: Maven@3
+#       inputs:
+#         mavenPomFile: 'pom.xml'
+#         goals: 'clean package'
+#         options: '-X'
 
-    - task: SonarQubePrepare@5
-      inputs:
-        SonarQube: 'SonarQubeServiceConnection'
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: 'your-project-key'
-        cliProjectName: 'your-project-name'
-        cliSources: '.'
+# - stage: RunUnitTests
+#   jobs:
+#   - job: RunUnitTests
+#     steps:
+#     - task: Maven@3
+#       inputs:
+#         mavenPomFile: 'pom.xml'
+#         goals: 'test'
+#         options: '-X'
 
-    - task: SonarQubeAnalyze@5
+# - stage: SonarQubeAnalysis
+#   jobs:
+#   - job: SonarQubeAnalysis
+#     steps:
+#     - script: mvn clean verify sonar:sonar -Dsonar.branch.name=""
+#       displayName: 'Build and Analyze with Maven'
+#       env:
+#         SONAR_HOST_URL: 'http://4.213.193.176:9000'
+#         SONAR_LOGIN: 'sqp_a36bef0658104dd34bc87100dea945739dc4c997'
 
-    - task: SonarQubePublish@5
-      inputs:
-        pollingTimeoutSec: '300'
+# - stage: BuildDockerImage
+#   jobs:
+#   - job: BuildDockerImage
+#     steps:
+#     - script: docker build -t $(DOCKER_IMAGE) .
 
-    - script: |
-        docker build -t $(imageRepository):$(Build.BuildId) .
-      displayName: 'Build Docker image'
-
-    - task: Docker@2
-      inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageRepository)'
-        command: 'push'
-        tags: |
-          $(Build.BuildId)
-
-- stage: Deploy
-  dependsOn: Build
-  jobs:
-  - deployment: Deploy
-    environment: 'aks'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: '$(kubernetesServiceConnection)'
-              azureResourceGroup: '<your-resource-group>'
-              kubernetesCluster: '$(aksCluster)'
-              namespace: '$(aksNamespace)'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: '$(Pipeline.Workspace)/manifests/deployment.yaml'
-              secretType: 'dockerRegistry'
-              containerRegistryType: 'Azure Container Registry'
-              dockerRegistryEndpoint: '$(dockerRegistryServiceConnection)'
-
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscriptionEndpoint: '$(kubernetesServiceConnection)'
-              azureResourceGroup: '<your-resource-group>'
-              kubernetesCluster: '$(aksCluster)'
-              namespace: '$(aksNamespace)'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: '$(Pipeline.Workspace)/manifests/service.yaml'
-              secretType: 'dockerRegistry'
-              containerRegistryType: 'Azure Container Registry'
-              dockerRegistryEndpoint: '$(dockerRegistryServiceConnection)'
+# - stage: PushDockerImagetoDockerHub
+#   jobs:
+#   - job: PushDockerImagetoDockerHub
+#     steps:
+#     - task: Docker@2
+#       inputs:
+#         containerRegistry: '$(DOCKER_CREDENTIALS_ID)'
+#         repository: '$(DOCKER_IMAGE)'
+#         command: 'push'
+#         tags: 'latest'
+# - stage: DeploytoAKS
+#   jobs:
+#   - job: DeploytoAKS
+#     steps:
+#     - task: Kubernetes@1
+#       inputs:
+#         connectionType: 'Azure Resource Manager'
+#         azureSubscriptionEndpoint: 'my-azure-connection'  # Replace with your AzureRM service connection name
+#         azureResourceGroup: 'rg-demo1'  # Replace with your Azure resource group
+#         kubernetesCluster: 'k8s-sqdemo'  # Replace with your AKS cluster name
+#         namespace: 'default'  # Specify the namespace; default is fine if not using custom namespaces
+#         command: 'apply'
+#         arguments: '-f deployment.yaml'  # Replace with the path to your deployment file
