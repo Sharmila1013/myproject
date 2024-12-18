@@ -6,7 +6,7 @@ variables:
   DOCKER_CREDENTIALS_ID: "docker-id"
   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
   SONARQUBE_SERVICE_CONNECTION: "sonar-id"
-  SONARQUBE_TOKEN: "$(SONARQUBE_TOKEN)"
+  SONARQUBE_TOKEN: "squ_631496dfe1d15835f116e83d1cbbf68c975f5ef5"
 
 pool:
   name: Default
