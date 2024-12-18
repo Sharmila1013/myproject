@@ -2,20 +2,31 @@ trigger:
 - main
 
 variables:
-  DOCKER_IMAGE: "sharmila79/Django-project"
+  DOCKER_IMAGE: "sharmila79/dummy-maven-project"
   DOCKER_CREDENTIALS_ID: "docker-id"
   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
 
 pool:
   name: Default
   demands:
-  - agent.name -equals sqtaskagentpool
+  - agent.name -equals sqtask
 
 stages:
 - stage: CloneCode
   jobs:
-  - job: CloneCode
+  - job: CheckoutRepo
     steps:
     - checkout: self
-      clean: true
+      displayName: 'Clone Repository'
+      inputs:
+        repository: 'https://github.com/SharmilaBalanand/myproject'
+        endpoint: 'github-id'
+    - script: echo "Repository cloned successfully!"
+      displayName: 'Confirm Repository Clone'
 
+- stage: RunScript
+  jobs:
+  - job: RunOneLineScript
+    steps:
+    - script: echo Hello, world!
+      displayName: 'Run a one-line script'
