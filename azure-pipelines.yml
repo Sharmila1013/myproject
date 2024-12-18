@@ -1,57 +1,3 @@
-# trigger:
-# - main
-
-# variables:
-#   DOCKER_IMAGE: "sharmila79/django-project"
-#   DOCKER_CREDENTIALS_ID: "docker-id"
-#   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
-
-# pool:
-#   name: Default
-#   demands:
-
-#   - agent.name -equals sqtask
-
-# stages:
-# - stage: CloneCode
-#   jobs:
-#   - job: CheckoutRepo
-#     steps:
-#     - checkout: self
-#       displayName: 'Clone Repository'
-#       persistCredentials: true
-#       clean: true
-#       fetchDepth: 0
-#     - script: echo "Repository cloned successfully!"
-#       displayName: 'Confirm Repository Clone'
-
-# - stage: RunScript
-#   jobs:
-#   - job: RunOneLineScript
-#     steps:
-#     - script: echo Hello, world!
-#       displayName: 'Run a one-line script'
-
-# - stage: BuildAndDeploy
-#   jobs:
-#   - job: BuildDjangoApp
-#     steps:
-#     - script: |
-#         echo "Building Django application..."
-#         docker build -t $(DOCKER_IMAGE) .
-#       displayName: 'Build Docker Image'
-#     - script: |
-#         echo "Pushing Docker image to registry..."
-#         echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_CREDENTIALS_ID) --password-stdin
-#         docker push $(DOCKER_IMAGE)
-#       displayName: 'Push Docker Image to Registry'
-#     - script: |
-#         echo "Deploying to AKS..."
-#         kubectl apply -f /home/sqtask/k8s-config/deploymentservice.yaml
-#       displayName: 'Deploy to AKS'
-
-
-
 trigger:
 - main
 
@@ -100,9 +46,30 @@ stages:
       displayName: 'Push Docker Image to Registry'
     - script: |
         echo "Deleting existing deployment..."
-        kubectl delete -f /home/sqtask/k8s-config/deploymentservice.yaml || true
+        kubectl delete -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml || true
       displayName: 'Delete Existing Deployment'
     - script: |
         echo "Deploying to AKS..."
-        kubectl apply -f /home/sqtask/k8s-config/deploymentservice.yaml
+        kubectl apply -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml
       displayName: 'Deploy to AKS'
+# - stage: BuildAndDeploy
+#   jobs:
+#   - job: BuildDjangoApp
+#     steps:
+#     - script: |
+#         echo "Building Django application..."
+#         docker build -t $(DOCKER_IMAGE) .
+#       displayName: 'Build Docker Image'
+#     - script: |
+#         echo "Pushing Docker image to registry..."
+#         echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_CREDENTIALS_ID) --password-stdin
+#         docker push $(DOCKER_IMAGE)
+#       displayName: 'Push Docker Image to Registry'
+#     - script: |
+#         echo "Deleting existing deployment..."
+#         kubectl delete -f /home/sqtask/k8s-config/deploymentservice.yaml || true
+#       displayName: 'Delete Existing Deployment'
+#     - script: |
+#         echo "Deploying to AKS..."
+#         kubectl apply -f /home/sqtask/k8s-config/deploymentservice.yaml
+#       displayName: 'Deploy to AKS'
