@@ -47,7 +47,5 @@ stages:
       displayName: 'Push Docker Image to Registry'
     - script: |
         echo "Deploying to AKS..."
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+        kubectl apply -f /home/sqtask/k8s-config/deploymentservice.yaml
       displayName: 'Deploy to AKS'
-
