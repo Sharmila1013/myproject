@@ -33,6 +33,32 @@ stages:
     - script: echo Hello, world!
       displayName: 'Run a one-line script'
 
+# - stage: SonarQubeAnalysis
+#   jobs:
+#   - job: RunSonarQube
+#     steps:
+#     - task: SonarQubePrepare@5
+#       inputs:
+#         SonarQube: sonar-id
+#         scannerMode: 'CLI'
+#         configMode: 'manual'
+#         cliProjectKey: 'myproject'
+#         cliProjectName: 'myproject'
+#         cliSources: '.'
+#       displayName: 'Prepare SonarQube Analysis'
+#     - script: |
+#         echo "Running SonarQube analysis using Docker..."
+#         docker run --rm \
+#           -e SONAR_HOST_URL=http://4.224.92.97 \
+#           -e SONAR_LOGIN=${SONARQUBE_TOKEN} \
+#           -v $(System.DefaultWorkingDirectory):/usr/src \
+#           sonarsource/sonar-scanner-cli
+#       displayName: 'Run SonarQube Scanner'
+#     - task: SonarQubePublish@5
+#       inputs:
+#         pollingTimeoutSec: '300'
+#       displayName: 'Publish SonarQube Results'
+
 - stage: SonarQubeAnalysis
   jobs:
   - job: RunSonarQube
@@ -47,17 +73,19 @@ stages:
         cliSources: '.'
       displayName: 'Prepare SonarQube Analysis'
     - script: |
-        echo "Running SonarQube analysis using Docker..."
-        docker run --rm \
-          -e SONAR_HOST_URL=http://4.224.92.97 \
-          -e SONAR_LOGIN=${SONARQUBE_TOKEN} \
-          -v $(System.DefaultWorkingDirectory):/usr/src \
-          sonarsource/sonar-scanner-cli
+        echo "Installing SonarQube scanner..."
+        wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip | bsdtar -xvf- -C /opt
+        export PATH=$PATH:/opt/sonar-scanner-4.6.2.2472-linux/bin
+      displayName: 'Install SonarQube Scanner'
+    - script: |
+        echo "Running SonarQube analysis..."
+        sonar-scanner
       displayName: 'Run SonarQube Scanner'
     - task: SonarQubePublish@5
       inputs:
         pollingTimeoutSec: '300'
       displayName: 'Publish SonarQube Results'
+
 
 - stage: BuildAndDeploy
   jobs:
