@@ -1,19 +1,19 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
+variables:
+  DOCKER_IMAGE: "sharmila79/dummy-maven-project"
+  DOCKER_CREDENTIALS_ID: "docker-id"
+  KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
+
 pool:
-  vmImage: ubuntu-latest
+  name: Default
+  demands:
+  - agent.name -equals sqtask
+
 
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+
