@@ -1,0 +1,93 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerRegistryServiceConnection: '<your-dockerhub-service-connection>'
+  imageRepository: '<your-dockerhub-username>/<your-repo>'
+  containerRegistry: 'docker.io'
+  kubernetesServiceConnection: '<your-aks-service-connection>'
+  aksCluster: '<your-aks-cluster-name>'
+  aksNamespace: 'default'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+
+    - script: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+      displayName: 'Install dependencies'
+
+    - task: SonarQubePrepare@5
+      inputs:
+        SonarQube: 'SonarQubeServiceConnection'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'your-project-key'
+        cliProjectName: 'your-project-name'
+        cliSources: '.'
+
+    - task: SonarQubeAnalyze@5
+
+    - task: SonarQubePublish@5
+      inputs:
+        pollingTimeoutSec: '300'
+
+    - script: |
+        docker build -t $(imageRepository):$(Build.BuildId) .
+      displayName: 'Build Docker image'
+
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'push'
+        tags: |
+          $(Build.BuildId)
+
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    environment: 'aks'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Kubernetes@1
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: '$(kubernetesServiceConnection)'
+              azureResourceGroup: '<your-resource-group>'
+              kubernetesCluster: '$(aksCluster)'
+              namespace: '$(aksNamespace)'
+              command: 'apply'
+              useConfigurationFile: true
+              configuration: '$(Pipeline.Workspace)/manifests/deployment.yaml'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'
+              dockerRegistryEndpoint: '$(dockerRegistryServiceConnection)'
+
+          - task: Kubernetes@1
+            inputs:
+              connectionType: 'Azure Resource Manager'
+              azureSubscriptionEndpoint: '$(kubernetesServiceConnection)'
+              azureResourceGroup: '<your-resource-group>'
+              kubernetesCluster: '$(aksCluster)'
+              namespace: '$(aksNamespace)'
+              command: 'apply'
+              useConfigurationFile: true
+              configuration: '$(Pipeline.Workspace)/manifests/service.yaml'
+              secretType: 'dockerRegistry'
+              containerRegistryType: 'Azure Container Registry'
+              dockerRegistryEndpoint: '$(dockerRegistryServiceConnection)'
