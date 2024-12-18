@@ -18,6 +18,9 @@ stages:
     steps:
     - checkout: self
       displayName: 'Clone Repository'
+      persistCredentials: true
+      clean: true
+      fetchDepth: 0
     - script: echo "Repository cloned successfully!"
       displayName: 'Confirm Repository Clone'
 
@@ -27,3 +30,4 @@ stages:
     steps:
     - script: echo Hello, world!
       displayName: 'Run a one-line script'
+
