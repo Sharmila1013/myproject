@@ -5,6 +5,7 @@ variables:
   DOCKER_IMAGE: "sharmila79/django-app"
   DOCKER_CREDENTIALS_ID: "docker-id"
   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
+  SONARQUBE_SERVICE_CONNECTION: "sonar-id"
 
 pool:
   name: Default
