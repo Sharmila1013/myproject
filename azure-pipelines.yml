@@ -33,6 +33,36 @@ stages:
 #     - script: echo Hello, world!
 #       displayName: 'Run a one-line script'
 
+# - stage: SonarQubeAnalysis
+#   jobs:
+#   - job: RunSonarQube
+#     steps:
+#     - task: SonarQubePrepare@5
+#       inputs:
+#         SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
+#         scannerMode: 'CLI'
+#         configMode: 'manual'
+#         cliProjectKey: 'myproject'
+#         cliProjectName: 'myproject'
+#         cliSources: '.'
+#       displayName: 'Prepare SonarQube Analysis'
+#     - script: |
+#         echo "Installing SonarQube scanner..."
+#         wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip -O sonar-scanner.zip
+#         unzip sonar-scanner.zip -d $HOME/sonar-scanner
+#         export PATH=$PATH:$HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
+#         echo "Running SonarQube analysis..."
+#         $HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
+#           -Dsonar.projectKey=myproject \
+#           -Dsonar.sources=. \
+#           -Dsonar.host.url=http://4.224.92.97 \
+#           -Dsonar.login=$(SONARQUBE_TOKEN)
+#       displayName: 'Install and Run SonarQube Scanner'
+#     - task: SonarQubePublish@5
+#       inputs:
+#         pollingTimeoutSec: '300'
+#       displayName: 'Publish SonarQube Results'
+
 - stage: SonarQubeAnalysis
   jobs:
   - job: RunSonarQube
@@ -52,79 +82,16 @@ stages:
         unzip sonar-scanner.zip -d $HOME/sonar-scanner
         export PATH=$PATH:$HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
         echo "Running SonarQube analysis..."
-        sonar-scanner \
+        $HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
           -Dsonar.projectKey=myproject \
           -Dsonar.sources=. \
           -Dsonar.host.url=http://4.224.92.97 \
           -Dsonar.login=$(SONARQUBE_TOKEN)
       displayName: 'Install and Run SonarQube Scanner'
-      timeoutInMinutes: 10  # Increase the timeout to 10 minutes
     - task: SonarQubePublish@5
       inputs:
         pollingTimeoutSec: '300'
       displayName: 'Publish SonarQube Results'
-
-
-
-# - stage: SonarQubeAnalysis
-#   jobs:
-#   - job: RunSonarQube
-#     steps:
-#     - task: SonarQubePrepare@5
-#       inputs:
-#         SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
-#         scannerMode: 'CLI'
-#         configMode: 'manual'
-#         cliProjectKey: 'myproject'
-#         cliProjectName: 'myproject'
-#         cliSources: '.'
-#       displayName: 'Prepare SonarQube Analysis'
-#     - script: |
-#         echo "Installing SonarQube scanner..."
-#         wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip -O sonar-scanner.zip
-#         unzip sonar-scanner.zip -d $HOME/sonar-scanner
-#         export PATH=$PATH:$HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
-#         echo "Running SonarQube analysis..."
-#         $HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
-#           -Dsonar.projectKey=myproject \
-#           -Dsonar.sources=. \
-#           -Dsonar.host.url=http://4.224.92.97 \
-#           -Dsonar.login=$(SONARQUBE_TOKEN)
-#       displayName: 'Install and Run SonarQube Scanner'
-#     - task: SonarQubePublish@5
-#       inputs:
-#         pollingTimeoutSec: '300'
-#       displayName: 'Publish SonarQube Results'
-
-# - stage: SonarQubeAnalysis
-#   jobs:
-#   - job: RunSonarQube
-#     steps:
-#     - task: SonarQubePrepare@5
-#       inputs:
-#         SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
-#         scannerMode: 'CLI'
-#         configMode: 'manual'
-#         cliProjectKey: 'myproject'
-#         cliProjectName: 'myproject'
-#         cliSources: '.'
-#       displayName: 'Prepare SonarQube Analysis'
-#     - script: |
-#         echo "Installing SonarQube scanner..."
-#         wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip -O sonar-scanner.zip
-#         unzip sonar-scanner.zip -d $HOME/sonar-scanner
-#         export PATH=$PATH:$HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin
-#         echo "Running SonarQube analysis..."
-#         $HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
-#           -Dsonar.projectKey=myproject \
-#           -Dsonar.sources=. \
-#           -Dsonar.host.url=http://4.224.92.97 \
-#           -Dsonar.login=$(SONARQUBE_TOKEN)
-#       displayName: 'Install and Run SonarQube Scanner'
-#     - task: SonarQubePublish@5
-#       inputs:
-#         pollingTimeoutSec: '300'
-#       displayName: 'Publish SonarQube Results'
 
 
 
