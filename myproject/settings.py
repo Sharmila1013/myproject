@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-tv@@f4(%#_u58d&fb(^f#gh!l+l!kw+s$jq7sll1#zi9q(7^2x
 DEBUG = True
 
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['4.187.151.13', 'localhost']
+ALLOWED_HOSTS = ['4.213.136.108', 'localhost']
 
 
 # Application definition
