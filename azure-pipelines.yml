@@ -21,7 +21,6 @@ stages:
       persistCredentials: true
       clean: true
       fetchDepth: 0
-      ref: refs/heads/master
     - script: echo "Repository cloned successfully!"
       displayName: 'Confirm Repository Clone'
 
