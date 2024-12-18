@@ -31,6 +31,28 @@ stages:
     - script: echo Hello, world!
       displayName: 'Run a one-line script'
 
+- stage: SonarQubeAnalysis
+  jobs:
+  - job: RunSonarQube
+    steps:
+    - task: SonarQubePrepare@5
+      inputs:
+        SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'myproject'
+        cliProjectName: 'MyProject'
+        cliSources: '.'
+      displayName: 'Prepare SonarQube Analysis'
+    - script: |
+        echo "Running SonarQube analysis..."
+        sonar-scanner
+      displayName: 'Run SonarQube Scanner'
+    - task: SonarQubePublish@5
+      inputs:
+        pollingTimeoutSec: '300'
+      displayName: 'Publish SonarQube Results'
+
 - stage: BuildAndDeploy
   jobs:
   - job: BuildDjangoApp
@@ -53,48 +75,6 @@ stages:
         kubectl apply -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml
       displayName: 'Deploy to AKS'
 
-
-# - stage: BuildAndDeploy
-#   jobs:
-#   - job: BuildDjangoApp
-#     steps:
-#     - script: |
-#         echo "Building Django application..."
-#         docker build -t $(DOCKER_IMAGE) .
-#       displayName: 'Build Docker Image'
-#     - script: |
-#         echo "Pushing Docker image to registry..."
-#         echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_CREDENTIALS_ID) --password-stdin
-#         docker push $(DOCKER_IMAGE)
-#       displayName: 'Push Docker Image to Registry'
-#     - script: |
-#         echo "Deleting existing deployment..."
-#         kubectl delete -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml || true
-#       displayName: 'Delete Existing Deployment'
-#     - script: |
-#         echo "Deploying to AKS..."
-#         kubectl apply -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml
-#       displayName: 'Deploy to AKS'
-
-      
-# - stage: BuildAndDeploy
-#   jobs:
-#   - job: BuildDjangoApp
-#     steps:
-#     - script: |
-#         echo "Building Django application..."
-#         docker build -t $(DOCKER_IMAGE) .
-#       displayName: 'Build Docker Image'
-#     - script: |
-#         echo "Pushing Docker image to registry..."
-#         echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_CREDENTIALS_ID) --password-stdin
-#         docker push $(DOCKER_IMAGE)
-#       displayName: 'Push Docker Image to Registry'
-#     - script: |
-#         echo "Deleting existing deployment..."
-#         kubectl delete -f /home/sqtask/k8s-config/deploymentservice.yaml || true
-#       displayName: 'Delete Existing Deployment'
-#     - script: |
 #         echo "Deploying to AKS..."
 #         kubectl apply -f /home/sqtask/k8s-config/deploymentservice.yaml
 #       displayName: 'Deploy to AKS'
