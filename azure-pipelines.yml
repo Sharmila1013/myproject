@@ -78,7 +78,7 @@ stages:
         kubectl exec -n sonarqube $POD_NAME -- sudo /opt/sonarqube/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
           -Dsonar.projectKey=myproject \
           -Dsonar.sources=. \
-          -Dsonar.host.url=http://4.224.92.97 \
+          -Dsonar.host.url=http://4.213.42.73 \
           -Dsonar.login=$(SONARQUBE_TOKEN) \
           -Dsonar.scanner.cache.dir=/tmp/scanner-cache \
           -X
