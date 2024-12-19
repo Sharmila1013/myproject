@@ -73,19 +73,19 @@ stages:
         echo "Pod name: $POD_NAME"
         echo "Creating cache directory in /tmp..."
         kubectl exec -n sonarqube $POD_NAME -- mkdir -p /tmp/scanner-cache
-        echo "Running SonarQube analysis inside pod $POD_NAME..."
+        echo "Running SonarQube analysis inside pod $POD_NAME with debug logging..."
         kubectl exec -n sonarqube $POD_NAME -- /opt/sonarqube/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
           -Dsonar.projectKey=myproject \
           -Dsonar.sources=. \
           -Dsonar.host.url=http://4.224.92.97 \
           -Dsonar.login=$(SONARQUBE_TOKEN) \
-          -Dsonar.scanner.cache.dir=/tmp/scanner-cache
-      displayName: 'Run SonarQube Scanner'
+          -Dsonar.scanner.cache.dir=/tmp/scanner-cache \
+          -X
+      displayName: 'Run SonarQube Scanner with Debug Logging'
     - task: SonarQubePublish@5
       inputs:
         pollingTimeoutSec: '300'
       displayName: 'Publish SonarQube Results'
-
 
 
 - stage: BuildAndDeploy
