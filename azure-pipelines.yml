@@ -70,14 +70,16 @@ stages:
     - script: |
         echo "Getting SonarQube pod name..."
         POD_NAME=$(kubectl get pods -n sonarqube -l app=sonarqube -o jsonpath='{.items[0].metadata.name}')
+        echo "Creating cache directory..."
+        kubectl exec -n sonarqube $POD_NAME -- mkdir -p /opt/sonarqube/scanner-cache
+        kubectl exec -n sonarqube $POD_NAME -- chmod -R 777 /opt/sonarqube/scanner-cache
         echo "Running SonarQube analysis inside pod $POD_NAME..."
-        kubectl exec -n sonarqube $POD_NAME -- chmod -R 777 /opt/sonarqube
         kubectl exec -n sonarqube $POD_NAME -- /opt/sonarqube/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
           -Dsonar.projectKey=myproject \
           -Dsonar.sources=. \
           -Dsonar.host.url=http://4.224.92.97 \
           -Dsonar.login=$(SONARQUBE_TOKEN) \
-          -Dsonar.scanner.cache.dir=/opt/sonarqube/cache
+          -Dsonar.scanner.cache.dir=/opt/sonarqube/scanner-cache
       displayName: 'Run SonarQube Scanner'
     - task: SonarQubePublish@5
       inputs:
