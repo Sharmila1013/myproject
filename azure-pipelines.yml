@@ -26,35 +26,8 @@ stages:
     - script: echo "Repository cloned successfully!"
       displayName: 'Confirm Repository Clone'
 
-# - stage: SonarQubeAnalysis
-#   jobs:
-#   - job: RunSonarQube
-#     steps:
-#     - task: SonarQubePrepare@5
-#       inputs:
-#         SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
-#         scannerMode: 'CLI'
-#         configMode: 'manual'
-#         cliProjectKey: 'myproject'
-#         cliProjectName: 'myproject'
-#         cliSources: '.'
-#       displayName: 'Prepare SonarQube Analysis'
-#     - script: |
-#         echo "Getting SonarQube pod name..."
-#         POD_NAME=$(kubectl get pods -n sonarqube -l app=sonarqube -o jsonpath='{.items[0].metadata.name}')
-#         echo "Running SonarQube analysis inside pod $POD_NAME..."
-#         kubectl exec -n sonarqube $POD_NAME -- /opt/sonarqube/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
-#           -Dsonar.projectKey=myproject \
-#           -Dsonar.sources=. \
-#           -Dsonar.host.url=http://4.224.92.97 \
-#           -Dsonar.login=$(SONARQUBE_TOKEN)
-#       displayName: 'Run SonarQube Scanner'
-#     - task: SonarQubePublish@5
-#       inputs:
-#         pollingTimeoutSec: '300'
-#       displayName: 'Publish SonarQube Results'
-
 - stage: SonarQubeAnalysis
+  dependsOn: CloneCode
   jobs:
   - job: RunSonarQube
     steps:
@@ -89,6 +62,7 @@ stages:
       displayName: 'Publish SonarQube Results'
 
 - stage: BuildAndDeploy
+  dependsOn: SonarQubeAnalysis
   jobs:
   - job: BuildDjangoApp
     steps:
@@ -109,3 +83,118 @@ stages:
         echo "Deploying to AKS..."
         kubectl apply -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml
       displayName: 'Deploy to AKS'
+
+
+
+
+# trigger:
+# - main
+
+# variables:
+#   DOCKER_IMAGE: "sharmila79/django-app"
+#   DOCKER_CREDENTIALS_ID: "docker-id"
+#   KUBECONFIG_CREDENTIALS_ID: "kubernetes-id"
+#   SONARQUBE_SERVICE_CONNECTION: "sonar-id"
+#   SONARQUBE_TOKEN: "squ_631496dfe1d15835f116e83d1cbbf68c975f5ef5"
+
+# pool:
+#   name: Default
+#   demands:
+#   - agent.name -equals sqtask
+
+# stages:
+# - stage: CloneCode
+#   jobs:
+#   - job: CheckoutRepo
+#     steps:
+#     - checkout: self
+#       displayName: 'Clone Repository'
+#       persistCredentials: true
+#       clean: true
+#       fetchDepth: 0
+#     - script: echo "Repository cloned successfully!"
+#       displayName: 'Confirm Repository Clone'
+
+# # - stage: SonarQubeAnalysis
+# #   jobs:
+# #   - job: RunSonarQube
+# #     steps:
+# #     - task: SonarQubePrepare@5
+# #       inputs:
+# #         SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
+# #         scannerMode: 'CLI'
+# #         configMode: 'manual'
+# #         cliProjectKey: 'myproject'
+# #         cliProjectName: 'myproject'
+# #         cliSources: '.'
+# #       displayName: 'Prepare SonarQube Analysis'
+# #     - script: |
+# #         echo "Getting SonarQube pod name..."
+# #         POD_NAME=$(kubectl get pods -n sonarqube -l app=sonarqube -o jsonpath='{.items[0].metadata.name}')
+# #         echo "Running SonarQube analysis inside pod $POD_NAME..."
+# #         kubectl exec -n sonarqube $POD_NAME -- /opt/sonarqube/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
+# #           -Dsonar.projectKey=myproject \
+# #           -Dsonar.sources=. \
+# #           -Dsonar.host.url=http://4.224.92.97 \
+# #           -Dsonar.login=$(SONARQUBE_TOKEN)
+# #       displayName: 'Run SonarQube Scanner'
+# #     - task: SonarQubePublish@5
+# #       inputs:
+# #         pollingTimeoutSec: '300'
+# #       displayName: 'Publish SonarQube Results'
+
+# - stage: SonarQubeAnalysis
+#   jobs:
+#   - job: RunSonarQube
+#     steps:
+#     - task: SonarQubePrepare@5
+#       inputs:
+#         SonarQube: $(SONARQUBE_SERVICE_CONNECTION)
+#         scannerMode: 'CLI'
+#         configMode: 'manual'
+#         cliProjectKey: 'myproject'
+#         cliProjectName: 'myproject'
+#         cliSources: '.'
+#       displayName: 'Prepare SonarQube Analysis'
+#     - script: |
+#         echo "Getting SonarQube pod name..."
+#         POD_NAME=$(kubectl get pods -n sonarqube -l app=sonarqube -o jsonpath='{.items[0].metadata.name}')
+#         echo "Pod name: $POD_NAME"
+#         echo "Creating cache directory in /tmp..."
+#         kubectl exec -n sonarqube $POD_NAME -- sudo mkdir -p /tmp/scanner-cache
+#         kubectl exec -n sonarqube $POD_NAME -- sudo chmod -R 777 /tmp/scanner-cache
+#         echo "Running SonarQube analysis inside pod $POD_NAME with debug logging..."
+#         kubectl exec -n sonarqube $POD_NAME -- sudo /opt/sonarqube/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
+#           -Dsonar.projectKey=myproject \
+#           -Dsonar.sources=. \
+#           -Dsonar.host.url=http://4.213.42.73 \
+#           -Dsonar.login=$(SONARQUBE_TOKEN) \
+#           -Dsonar.scanner.cache.dir=/tmp/scanner-cache \
+#           -X
+#       displayName: 'Run SonarQube Scanner with Debug Logging'
+#     - task: SonarQubePublish@5
+#       inputs:
+#         pollingTimeoutSec: '300'
+#       displayName: 'Publish SonarQube Results'
+
+# - stage: BuildAndDeploy
+#   jobs:
+#   - job: BuildDjangoApp
+#     steps:
+#     - script: |
+#         echo "Building Django application..."
+#         docker build -t $(DOCKER_IMAGE) .
+#       displayName: 'Build Docker Image'
+#     - script: |
+#         echo "Pushing Docker image to registry..."
+#         echo $(DOCKER_PASSWORD) | docker login -u $(DOCKER_CREDENTIALS_ID) --password-stdin
+#         docker push $(DOCKER_IMAGE)
+#       displayName: 'Push Docker Image to Registry'
+#     - script: |
+#         echo "Deleting existing deployment..."
+#         kubectl delete -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml || true
+#       displayName: 'Delete Existing Deployment'
+#     - script: |
+#         echo "Deploying to AKS..."
+#         kubectl apply -f https://raw.githubusercontent.com/SharmilaBalanand/myproject/master/deploymentservice.yaml
+#       displayName: 'Deploy to AKS'
