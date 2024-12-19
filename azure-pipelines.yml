@@ -97,7 +97,7 @@ stages:
 #       displayName: 'Publish SonarQube Results'
 
 - stage: BuildAndDeploy
-  dependsOn: SonarQubeAnalysis
+  # dependsOn: SonarQubeAnalysis
   jobs:
   - job: BuildDjangoApp
     steps:
